@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ matiere.name }}{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h1>{{ matiere.name }}</h1>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ matiere.description }}</p>
+
+                    <h2 class="mt-4">Tutoriels disponibles</h2>
+                    {% if matiere.tutoriels is empty %}
+                        <p class="alert alert-info">Aucun tutoriel n'est disponible pour cette matière.</p>
+                    {% else %}
+                        <div class="list-group">
+                            {% for tutoriel in matiere.tutoriels %}
+                                <a href="{{ path('app_tutoriel_show', {'id': tutoriel.id}) }}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">{{ tutoriel.title }}</h5>
+                                        <small>Créé le {{ tutoriel.createdAt|date('d/m/Y') }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ tutoriel.content|slice(0, 150) }}...</p>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <a href="{{ path('app_matiere_index') }}" class="btn btn-secondary">Retour à la liste</a>
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <a href="{{ path('app_matiere_edit', {'id': matiere.id}) }}" class="btn btn-warning">Modifier</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

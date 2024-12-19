@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="text-center">Bienvenue</h1>
+                </div>
+                <div class="card-body">
+                    {% if app.user %}
+                        {% if is_granted('ROLE_BANNED') %}
+                            <div class="alert alert-danger">
+                                <h2>Compte suspendu</h2>
+                                <p>Votre compte a été suspendu. Veuillez contacter l'administrateur pour plus d'informations.</p>
+                            </div>
+                        {% else %}
+                            <h2>Bonjour {{ app.user.firstname }} {{ app.user.lastname }} !</h2>
+                            
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <div class="mt-4">
+                                    <h3>Actions administrateur</h3>
+                                    <a href="{{ path('app_admin') }}" class="btn btn-primary">
+                                        Accéder au panneau d'administration
+                                    </a>
+                                </div>
+                            {% endif %}
+
+                            {% if is_granted('ROLE_USER') %}
+                                <div class="mt-4">
+                                    <h3>Mon espace</h3>
+                                    <a href="{{ path('app_profile') }}" class="btn btn-info">
+                                        Accéder à mon profil
+                                    </a>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    {% else %}
+                        <p>Connectez-vous pour accéder à toutes les fonctionnalités.</p>
+                        <div class="d-grid gap-2">
+                            <a href="{{ path('app_login') }}" class="btn btn-primary">Se connecter</a>
+                            <a href="{{ path('app_register') }}" class="btn btn-secondary">S'inscrire</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

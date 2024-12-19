@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1 class="mb-4">Administration</h1>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Gestion des utilisateurs</h2>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Email</th>
+                            <th>Prénom</th>
+                            <th>Nom</th>
+                            <th>Rôles</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.firstname }}</td>
+                                <td>{{ user.lastname }}</td>
+                                <td>
+                                    {% for role in user.roles %}
+                                        {% if role == 'ROLE_ADMIN' %}
+                                            <span class="badge bg-danger">Admin</span>
+                                        {% elseif role == 'ROLE_USER' %}
+                                            <span class="badge bg-primary">User</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% if user.isBanned %}
+                                        <span class="badge bg-danger">Banni</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Actif</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{ path('app_admin_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-primary">Éditer</a>
+                                        
+                                        <form method="post" action="{{ path('app_admin_user_toggle_ban', {'id': user.id}) }}" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('toggle-ban' ~ user.id) }}">
+                                            <button type="submit" class="btn btn-sm {% if user.isBanned %}btn-success{% else %}btn-warning{% endif %}">
+                                                {% if user.isBanned %}Débannir{% else %}Bannir{% endif %}
+                                            </button>
+                                        </form>
+
+                                        <form method="post" action="{{ path('app_admin_user_toggle_role', {'id': user.id}) }}" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('toggle-role' ~ user.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-info">
+                                                {% if 'ROLE_ADMIN' in user.roles %}Retirer Admin{% else %}Faire Admin{% endif %}
+                                            </button>
+                                        </form>
+
+                                        <form method="post" action="{{ path('app_admin_user_delete', {'id': user.id}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

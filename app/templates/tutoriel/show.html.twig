@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ tutoriel.title }}{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h1>{{ tutoriel.title }}</h1>
+            <div>
+                <a href="{{ path('app_matiere_show', {'id': tutoriel.matiere.id}) }}" class="badge bg-primary text-decoration-none">
+                    {{ tutoriel.matiere.name }}
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="mb-4">
+                {{ tutoriel.content|nl2br }}
+            </div>
+
+            <h2>Chapitres</h2>
+            {% if tutoriel.chapitres is empty %}
+                <p class="alert alert-info">Aucun chapitre n'a été créé pour ce tutoriel.</p>
+            {% else %}
+                <div class="list-group mb-4">
+                    {% for chapitre in tutoriel.chapitres %}
+                        <a href="{{ path('app_chapitre_show', {'id': chapitre.id}) }}" class="list-group-item list-group-item-action">
+                            {{ chapitre.title }}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% if is_granted('ROLE_ADMIN') %}
+                <div class="mb-3">
+                    <a href="{{ path('app_chapitre_new', {'tutoriel': tutoriel.id}) }}" class="btn btn-success">
+                        Ajouter un chapitre
+                    </a>
+                </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted">
+                    Créé le {{ tutoriel.createdAt|date('d/m/Y') }}
+                    {% if tutoriel.updatedAt %}
+                        <br>Mis à jour le {{ tutoriel.updatedAt|date('d/m/Y') }}
+                    {% endif %}
+                </div>
+                
+                <div class="btn-group">
+                    <a href="{{ path('app_tutoriel_index') }}" class="btn btn-secondary">Retour à la liste</a>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <a href="{{ path('app_tutoriel_edit', {'id': tutoriel.id}) }}" class="btn btn-warning">Modifier</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

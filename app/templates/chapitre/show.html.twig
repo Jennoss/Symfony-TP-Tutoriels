@@ -1,0 +1,79 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ chapitre.title }}{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h1>{{ chapitre.title }}</h1>
+            <a href="{{ path('app_tutoriel_show', {'id': chapitre.tutoriel.id}) }}" class="badge bg-primary text-decoration-none">
+                Retour au tutoriel
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="content mb-4">
+                {{ chapitre.content|nl2br }}
+            </div>
+
+            {% if is_granted('ROLE_ADMIN') %}
+                <div class="btn-group">
+                    <a href="{{ path('app_chapitre_edit', {'id': chapitre.id}) }}" class="btn btn-warning">
+                        Modifier le chapitre
+                    </a>
+                    <form method="post" action="{{ path('app_chapitre_delete', {'id': chapitre.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce chapitre ?');" style="display: inline-block;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ chapitre.id) }}">
+                        <button class="btn btn-danger">Supprimer</button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h2>Commentaires</h2>
+        </div>
+        <div class="card-body">
+            {% if is_granted('ROLE_USER') and not is_granted('ROLE_BANNED') %}
+                <div class="mb-4">
+                    {{ form_start(commentForm, {'action': path('app_commentaire_new', {'id': chapitre.id})}) }}
+                        {{ form_row(commentForm.content) }}
+                        <button type="submit" class="btn btn-primary">Ajouter un commentaire</button>
+                    {{ form_end(commentForm) }}
+                </div>
+            {% elseif not is_granted('ROLE_USER') %}
+                <div class="alert alert-info">
+                    <a href="{{ path('app_login') }}">Connectez-vous</a> pour laisser un commentaire.
+                </div>
+            {% endif %}
+
+            {% if chapitre.commentaires is empty %}
+                <p class="alert alert-info">Aucun commentaire pour le moment.</p>
+            {% else %}
+                {% for commentaire in chapitre.commentaires %}
+                    <div class="comment mb-3 p-3 border rounded">
+                        <div class="comment-content">
+                            {{ commentaire.content|nl2br }}
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <small class="text-muted">
+                                Posté le {{ commentaire.createdAt|date('d/m/Y H:i') }}
+                            </small>
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ path('app_commentaire_edit', {'id': commentaire.id}) }}" class="btn btn-outline-warning">Modifier</a>
+                                    <form method="post" action="{{ path('app_commentaire_delete', {'id': commentaire.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce commentaire ?');" style="display: inline-block;">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ commentaire.id) }}">
+                                        <button class="btn btn-outline-danger">Supprimer</button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

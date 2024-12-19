@@ -1,0 +1,51 @@
+{# templates/matiere/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des matières{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Liste des matières</h1>
+
+    {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('app_matiere_new') }}" class="btn btn-primary mb-3">
+            Créer une nouvelle matière
+        </a>
+    {% endif %}
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for matiere in matieres %}
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ matiere.name }}</h5>
+                        <p class="card-text">{{ matiere.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{{ path('app_matiere_show', {'id': matiere.id}) }}" class="btn btn-info">
+                                Voir les tutoriels
+                            </a>
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <div class="btn-group">
+                                    <a href="{{ path('app_matiere_edit', {'id': matiere.id}) }}" class="btn btn-warning">
+                                        Modifier
+                                    </a>
+                                    <form method="post" action="{{ path('app_matiere_delete', {'id': matiere.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette matière ?');" style="display: inline-block;">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ matiere.id) }}">
+                                        <button class="btn btn-danger">Supprimer</button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    Aucune matière n'a été créée pour le moment.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
